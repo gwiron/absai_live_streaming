@@ -15,7 +15,8 @@ def _playAudio():
         if len(queueRandomAudios) == 0:
             randomAudios() # 重新随机循环话术列表
 
-        if len(queueReplyAudios) !=0:
+        # 如果有QA优先回答问题
+        if len(queueReplyAudios) != 0:
             filename = queueReplyAudios.pop(0)
         else:
             filename = queueRandomAudios.pop(0)
@@ -29,20 +30,27 @@ def _playAudio():
 
 # 轮询检测评论文案，并调用选择回复音频的函数
 def pollingCommentDetection():
+    QA = data.audios.audios['QA']
     while(1):
-        # print("新一次弹幕检测")
+        # 获取屏幕上的文字
+        ocrStr = ocr.strTextOcr()
+        # print(ocrStr)
 
-        # 识别关键字，并获取关键字
-        detectionStr = '多少钱'
+        # 查询是否匹配QA列表
+        retOcr = [key for key in QA.keys() if key in ocrStr]
+        print(retOcr)
 
-        # 刚回答过的问题，30s后才可以继续回答 
-        if detectionStr not in queueReplyAudiosDelay30s:
-            t = ocr.selectReplyAudio(detectionStr)
-            t = 'audio/QA/多少钱/'+t
-            queueReplyAudios.append(t)
-            sleepCommentDetection(detectionStr)
+        for key in retOcr:
+
+            # 刚回答过的问题，30s后才可以继续回答 & 列表是否有语音
+            if key not in queueReplyAudiosDelay30s and len(QA[key]) > 0:
+                t = ocr.selectReplyAudio(key)
+                t = 'audio/QA/'+ key +'/'+t
+                queueReplyAudios.append(t)
+                sleepCommentDetection(key)
+                # print(key)
         
-        time.sleep(1)  # 一秒检测一次
+        time.sleep(3)  # 一秒检测一次
 
 # 刚回答过的问题 30s后才可以继续回答
 def _sleepCommentDetection():
