@@ -7,10 +7,10 @@ import random
 import data.audios
 
 # 传入某个识别的屏幕范围，并进行OCR输出
-def strTextOcr():
+def strTextOcr(monitor = {"top": 880, "left": 240, "width": 500, "height": 170}):
     with mss.mss() as sct:
         # monitor = sct.monitors[1]  # 使用监视器编号，通常0是主显示器
-        monitor = {"top": 0, "left": 0, "width": 500, "height": 800}
+        # monitor = {"top": 0, "left": 0, "width": 500, "height": 800}
         print("开始截图→→")
         screenshot = sct.grab(monitor)
         img = Image.frombytes("RGB", screenshot.size, screenshot.bgra, "raw", "BGRX")

@@ -31,10 +31,20 @@ def _playAudio():
 # 轮询检测评论文案，并调用选择回复音频的函数
 def pollingCommentDetection():
     QA = data.audios.audios['QA']
+    lastStr = ""
     while(1):
+        time.sleep(3)  # n秒检测一次
         # 获取屏幕上的文字
         ocrStr = ocr.strTextOcr()
-        # print(ocrStr)
+        ocrStr = ocrStr.replace(" ", "").replace("\n", "").replace("\t", "")
+
+        print("——————下面是OCR的文字——————")
+        print(ocrStr)
+        print("——————OCR文字打印结束——————")
+        # 如果屏幕上未出现新评论，则不进行检测
+        if ocrStr == lastStr:
+            continue
+        lastStr = ocrStr
 
         # 查询是否匹配QA列表
         retOcr = [key for key in QA.keys() if key in ocrStr]
@@ -48,9 +58,7 @@ def pollingCommentDetection():
                 t = 'audio/QA/'+ key +'/'+t
                 queueReplyAudios.append(t)
                 sleepCommentDetection(key)
-                # print(key)
-        
-        time.sleep(3)  # 一秒检测一次
+                print("主播刚刚回答了：" + key)
 
 # 刚回答过的问题 30s后才可以继续回答
 def _sleepCommentDetection():
@@ -98,4 +106,3 @@ def start():
 
 if __name__ == '__main__': 
     start()
-
